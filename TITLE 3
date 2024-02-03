@@ -1,0 +1,66 @@
+# Import necessary libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.metrics import mean_squared_error
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the dataset
+url = "/content/drive/MyDrive/Countries GDP 1960-2020.csv"  # Replace with the actual URL or local path
+
+df = pd.read_csv(url)
+
+# Select relevant columns
+selected_columns = ['Country Name', 'Country Code', '1978', '1979', '1980', '1981', '1982', '1983', '1985']
+df = df[selected_columns]
+
+# Drop rows with missing values
+df.dropna(inplace=True)
+
+# Define features (X) and target variable (y)
+X = df.drop(['Country Name', 'Country Code'], axis=1)
+y = df['1985']
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train Random Forest model
+rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+rf_model.fit(X_train, y_train)
+
+# Train Gradient Boosting model
+gb_model = GradientBoostingRegressor(n_estimators=100, random_state=42)
+gb_model.fit(X_train, y_train)
+
+# Make predictions
+rf_predictions = rf_model.predict(X_test)
+gb_predictions = gb_model.predict(X_test)
+
+# Evaluate model performance
+rf_accuracy = rf_model.score(X_test, y_test)
+gb_accuracy = gb_model.score(X_test, y_test)
+
+# Print model accuracies
+print("Random Forest Accuracy:", rf_accuracy*100)
+print("Gradient Boosting Accuracy:", gb_accuracy*100)
+
+# Plotting the predictions vs actual values for Random Forest
+plt.figure(figsize=(12, 6))
+sns.barplot(x=y_test.index, y=y_test, color='blue', alpha=0.5, label='Actual')
+sns.barplot(x=y_test.index, y=rf_predictions, color='red', alpha=0.5, label='Random Forest Prediction')
+plt.title('Random Forest Predictions vs Actual Values')
+plt.xlabel('Sample Index')
+plt.ylabel('GDP Value')
+plt.legend()
+plt.show()
+
+# Plotting the predictions vs actual values for Gradient Boosting
+plt.figure(figsize=(12, 6))
+sns.barplot(x=y_test.index, y=y_test, color='blue', alpha=0.5, label='Actual')
+sns.barplot(x=y_test.index, y=gb_predictions, color='green', alpha=0.5, label='Gradient Boosting Prediction')
+plt.title('Gradient Boosting Predictions vs Actual Values')
+plt.xlabel('Sample Index')
+plt.ylabel('GDP Value')
+plt.legend()
+plt.show()
