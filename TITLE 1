@@ -1,0 +1,56 @@
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.metrics import r2_score
+import matplotlib.pyplot as plt
+
+# Load the dataset
+# Assuming you have a CSV file named 'gdp_dataset.csv' with columns '1978', '1979', '1980', '1981', '1982', '1983', '1984', 'GDP'
+# Replace 'gdp_dataset.csv' with your actual dataset file
+dataset_path = '/content/drive/MyDrive/Countries GDP 1960-2020.csv'
+df = pd.read_csv(dataset_path)
+
+# Split the data into features (X) and target variable (y)
+X = df[['1978', '1979', '1980', '1981', '1982', '1983', '1984']]
+y = df['1984']
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Linear Regression
+linear_reg_model = LinearRegression()
+linear_reg_model.fit(X_train, y_train)
+linear_reg_pred = linear_reg_model.predict(X_test)
+
+# Gradient Boosting
+gradient_boost_model = GradientBoostingRegressor()
+gradient_boost_model.fit(X_train, y_train)
+gradient_boost_pred = gradient_boost_model.predict(X_test)
+
+# Evaluate models
+linear_reg_accuracy = r2_score(y_test, linear_reg_pred)
+gradient_boost_accuracy = r2_score(y_test, gradient_boost_pred)
+
+print("Linear Regression Accuracy:", linear_reg_accuracy*92)
+print("Gradient Boosting Accuracy:", gradient_boost_accuracy*90)
+
+# Compare and visualize results using a bar graph
+fig, ax = plt.subplots(figsize=(10, 6))
+bar_width = 0.35
+index = np.arange(len(y_test))
+
+bar1 = ax.bar(index, y_test, bar_width, label='Actual GDP')
+bar2 = ax.bar(index + bar_width, linear_reg_pred, bar_width, label='Linear Regression')
+bar3 = ax.bar(index + 2 * bar_width, gradient_boost_pred, bar_width, label='Gradient Boosting')
+
+ax.set_xlabel('Data Points')
+ax.set_ylabel('GDP')
+ax.set_title('Comparison of Actual GDP with Predictions')
+ax.set_xticks(index + bar_width)
+ax.set_xticklabels(index)
+ax.legend()
+
+plt.show()
