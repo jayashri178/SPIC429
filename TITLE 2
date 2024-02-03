@@ -1,0 +1,56 @@
+# Import necessary libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+
+# Load the dataset
+url = '/content/drive/MyDrive/Countries GDP 1960-2020.csv'
+df = pd.read_csv(url)
+
+# Select relevant columns
+selected_columns = ['Country Name', 'Country Code', '1978', '1979', '1980', '1981', '1982', '1983', '1985']
+df_selected = df[selected_columns]
+
+# Drop rows with missing values
+df_selected = df_selected.dropna()
+
+# Prepare features and target variable
+X = df_selected.iloc[:, 2:]  # Features
+y = (df_selected['1985'] > df_selected['1980']).astype(int)  # Target variable (1 if GDP growth, 0 otherwise)
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train Gradient Boosting Classifier
+gb_classifier = GradientBoostingClassifier(random_state=42)
+gb_classifier.fit(X_train, y_train)
+
+# Train K-Nearest Neighbors Classifier
+knn_classifier = KNeighborsClassifier(n_neighbors=5)
+knn_classifier.fit(X_train, y_train)
+
+# Make predictions on the test set
+y_pred_gb = gb_classifier.predict(X_test)
+y_pred_knn = knn_classifier.predict(X_test)
+
+# Calculate accuracy
+accuracy_gb = accuracy_score(y_test, y_pred_gb)
+accuracy_knn = accuracy_score(y_test, y_pred_knn)
+
+# Print accuracy
+print(f"Gradient Boosting Accuracy: {accuracy_gb * 100:.2f}%")
+print(f"KNN Accuracy: {accuracy_knn * 100:.2f}%")
+
+# Plotting the bar graph
+fig, ax = plt.subplots()
+models = ['Gradient Boosting', 'KNN']
+accuracies = [accuracy_gb, accuracy_knn]
+
+ax.bar(models, accuracies, color=['blue', 'green'])
+ax.set_ylabel('Accuracy')
+ax.set_title('Comparison of Gradient Boosting and KNN for GDP Growth Prediction')
+
+plt.show()
