@@ -1,0 +1,52 @@
+# Import necessary libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+
+# Load the dataset
+url = "/content/drive/MyDrive/Countries GDP 1960-2020.csv"  # Replace with the actual path or URL
+df = pd.read_csv(url)
+
+# Select relevant columns for prediction
+selected_columns = ['Country Name', 'Country Code', '1978', '1979', '1980', '1981', '1982', '1983', '1985']
+df = df[selected_columns]
+
+# Drop rows with missing values
+df = df.dropna()
+
+# Separate features and target variable
+X = df.iloc[:, 2:-1]  # Features (1978 to 1985)
+y = df['1985']  # Target variable
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Random Forest model
+rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+rf_model.fit(X_train, y_train)
+rf_predictions = rf_model.predict(X_test)
+rf_accuracy = rf_model.score(X_test, y_test)
+
+# KNN model
+knn_model = KNeighborsRegressor(n_neighbors=5)
+knn_model.fit(X_train, y_train)
+knn_predictions = knn_model.predict(X_test)
+knn_accuracy = knn_model.score(X_test, y_test)
+
+# Display accuracy scores
+print(f"Random Forest Accuracy: {rf_accuracy*100:.2f}%")
+print(f"KNN Accuracy: {knn_accuracy*100:.2f}%")
+
+# Plot bar graph for comparison
+models = ['Random Forest', 'KNN']
+accuracies = [rf_accuracy, knn_accuracy]
+
+plt.bar(models, accuracies, color=['blue', 'green'])
+plt.ylim(0, 1)  # Limit y-axis to 0-100%
+plt.title('Comparison of Random Forest and KNN Accuracy')
+plt.xlabel('Models')
+plt.ylabel('Accuracy')
+plt.show()
